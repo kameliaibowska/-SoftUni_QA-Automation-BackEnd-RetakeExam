@@ -1,0 +1,225 @@
+{
+	"info": {
+		"_postman_id": "88323e93-4d6a-4348-8f1a-de3714177a16",
+		"name": "UrlShortener",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5969178"
+	},
+	"item": [
+		{
+			"name": "GET All short URLs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check if response type is json\", () => {\r",
+							"    pm.response.to.be.json;\r",
+							"    const respBody = pm.response.json();\r",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"    pm.expect(typeof(respBody)).is.equal(\"object\"); \r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/urls",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"urls"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create a short URL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"\r",
+							"    const respBody = pm.response.json();\r",
+							"    pm.environment.set(\"shortCode\", respBody.url.shortCode);\r",
+							"    pm.environment.set(\"url\", respBody.url.url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"url\": \"https://cnn.com\",\r\n    \"shortCode\": \"cnn\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}/api/urls",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"urls"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET short URL by shortCode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check url\", () => {\r",
+							"    const respBody = pm.response.json();\r",
+							"    pm.expect(respBody.url, \"URL property\").to.be.equal(pm.environment.get(\"url\"));\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/urls/{{shortCode}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"urls",
+						"{{shortCode}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST Try to create duplicate URL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check the status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the response error message\", () => {\r",
+							"    const respBody = pm.response.json();\r",
+							"    pm.expect(respBody.errMsg, \"MSG property\").to.be.equal(\"Short code already exists!\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"url\": \"https://nakov.com\",\r\n    \"shortCode\": \"nak\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}/api/urls",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"urls"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE url",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check if the url is deleted\", () => {\r",
+							"    const respBody = pm.response.json();\r",
+							"    pm.expect(respBody.msg, \"MSG property\").to.be.equal(\"URL deleted: \" + pm.environment.get(\"shortCode\"));\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"url\": \"https://cnn.com\",\r\n    \"shortCode\": \"cnn\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{host}}/api/urls/{{shortCode}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"urls",
+						"{{shortCode}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
